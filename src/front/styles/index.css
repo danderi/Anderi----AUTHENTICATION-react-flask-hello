@@ -1,3 +1,13 @@
 /* 
     General Styles used on every website (Don't Repeat Yourself)
 */
+
+.container {
+    max-width: 70%; /* Esto establece el ancho del contenedor al 33.33% del tamaño de la ventana */
+  }
+  
+  .col-md-4 {
+    margin-top: 50px; /* Espacio en la parte superior */
+    margin-bottom: 50px; /* Espacio en la parte inferior */
+  }
+  

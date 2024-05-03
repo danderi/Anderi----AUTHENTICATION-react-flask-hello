@@ -35,8 +35,11 @@ def new_user():
     try:
         email = request.json.get('email')
         password = request.json.get('password')
-        first_name = request.json.get('first_name')
-        last_name = request.json.get('last_name')
+        first_name = request.json.get('firstName')
+        last_name = request.json.get('lastName')
+
+        if not email.strip() or not first_name.strip() or not last_name.strip() or not password.strip():
+            return jsonify({"message": "Missing required fields: first_name, last_name, email, password"}), 400
     
         if not email or not first_name or not last_name or not password:
             return jsonify({"message": "Missing required fields: first_name, last_name, email, password"}), 400
@@ -73,7 +76,7 @@ def new_user():
         return jsonify({"message": "Failed to create user", "error": str(e)}), 500
 
 
-@api.route('/token', methods=['POST'])
+@api.route('/login', methods=['POST'])
 def get_token():
     try:
         email = request.json.get('email')
@@ -107,7 +110,7 @@ def get_token():
         return {"Error":"El email proporcionado no corresponde a ninguno registrado: " + str(e)}, 500
     
 
-@api.route('/users')
+@api.route('/private')
 @jwt_required()  # Decorador para requerir autenticación con JWT
 def show_users():
     current_user_id = get_jwt_identity()  # Obtiene la id del usuario del token
