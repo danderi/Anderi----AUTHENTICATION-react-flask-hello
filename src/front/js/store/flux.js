@@ -38,6 +38,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
+			submitLoginForm: async loginData => {
+				try {
+					const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/login", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(loginData)
+					});
+		
+					if (response.ok) {
+						console.log("Login realizado exitosamente");
+					} else {
+						console.error("Error de login");
+					}
+				} catch (error) {
+					console.error("Error:", error);
+				}
+			},
+
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");

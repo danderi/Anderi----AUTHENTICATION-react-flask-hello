@@ -1,9 +1,11 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
+import { useNavigate } from "react-router-dom";
 import "../../styles/index.css";
 
 export const Signup = () => {
     const { store, actions } = useContext(Context);
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -17,35 +19,30 @@ export const Signup = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const [errorMessage, setErrorMessage] = useState(""); // Nuevo estado para el mensaje de error
-
     const handleSubmit = async e => {
         e.preventDefault();
         try {
             await actions.submitSignupForm(formData);
-            // Limpiar los campos del formulario
             setFormData({
                 email: "",
                 firstName: "",
                 lastName: "",
                 password: ""
             });
-            // Limpiar el mensaje de error si lo hay
-            setErrorMessage("");
+            navigate("/login");
         } catch (error) {
             console.error("Error:", error);
-            // Configurar el mensaje de error
-            setErrorMessage("Failed to submit the form. Please try again.");
         }
     };
-    
 
 
     return (
         <div className="container">
             <div className="row justify-content-center">
                 <div className="col-md-4">
-                {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+                    <div>
+                        <h4>Registrese</h4>
+                    </div>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>

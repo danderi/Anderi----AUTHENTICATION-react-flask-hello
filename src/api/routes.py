@@ -10,7 +10,7 @@ from datetime import timedelta
 #importación de bcrypt diferente
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
-
+import re
 
 api = Blueprint('api', __name__)
 
@@ -52,7 +52,6 @@ def new_user():
         # el password hasheado de otra manera
         hashed_password = generate_password_hash(password)
 
-
         new_user = User(
             email = email,
             password = hashed_password,
@@ -78,6 +77,11 @@ def new_user():
 
 @api.route('/login', methods=['POST'])
 def get_token():
+    
+    def validate_email(email):
+        pattern = r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$'
+        return re.match(pattern, email)
+    
     try:
         email = request.json.get('email')
         password = request.json.get('password')
@@ -85,10 +89,13 @@ def get_token():
         if not email or not password:
             return jsonify({'error': 'Email and password are required.'}), 400
         
+        if not validate_email(email):
+            return jsonify({'error': 'Invalid email format.'}), 404
+        
         login_user = User.query.filter_by(email=request.json['email']).one()
 
         if not login_user:
-            return jsonify({'error': 'Invalid email.'}), 404
+            return jsonify({'error': 'email/user not found.'}), 404
 
         password_from_db = login_user.password
         hashed_password_hex = password_from_db
