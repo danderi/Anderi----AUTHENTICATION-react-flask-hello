@@ -29,9 +29,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					});
 		
 					if (response.ok) {
-						console.log("Formulario enviado exitosamente");
+						console.log("Form sent successfully");
 					} else {
-						console.error("Error al enviar formulario");
+						console.error("Error submitting form");
 					}
 				} catch (error) {
 					console.error("Error:", error);
@@ -47,16 +47,70 @@ const getState = ({ getStore, getActions, setStore }) => {
 						},
 						body: JSON.stringify(loginData)
 					});
-		
+			
 					if (response.ok) {
-						console.log("Login realizado exitosamente");
+						const data = await response.json();
+						localStorage.setItem("jwt-token", data.token);
+						return { success: true, error: null };
 					} else {
-						console.error("Error de login");
+						const errorMessage = await response.text();
+						// Distinguimos entre diferentes tipos de errores devueltos por la API
+						if (errorMessage === "email/user not found.") {
+							throw new Error("Login error: User not found.");
+						} else if (errorMessage === "Invalid password.") {
+							throw new Error("Login error: Invalid password.");
+						} else {
+							throw new Error("Login error: " + errorMessage);
+						}
 					}
 				} catch (error) {
-					console.error("Error:", error);
+					throw new Error("Request error: " + error.message);
 				}
 			},
+			
+			
+			
+//-------------------------------------------------------------------------------------------------------------------------------------------			
+			fetchMyInfo: async () => {
+				try {
+					const response = await fetch("URL_PARA_OBTENER_LA_INFO_DE_MI_INFO", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							// Incluir cualquier header necesario, como el token de autorización si es necesario
+						},
+					});
+					if (!response.ok) {
+						throw new Error("Failed to fetch my info");
+					}
+					const data = await response.json();
+					return data;
+				} catch (error) {
+					console.error("Error fetching my info:", error);
+					throw error;
+				}
+			},
+	
+			fetchUsers: async () => {
+				try {
+					const response = await fetch("URL_PARA_OBTENER_LA_LISTA_DE_USUARIOS", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							// Incluir cualquier header necesario, como el token de autorización si es necesario
+						},
+					});
+					if (!response.ok) {
+						throw new Error("Failed to fetch users");
+					}
+					const data = await response.json();
+					return data;
+				} catch (error) {
+					console.error("Error fetching users:", error);
+					throw error;
+				}
+			},
+//----------------------------------------------------------------------------------------------------		
 
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {

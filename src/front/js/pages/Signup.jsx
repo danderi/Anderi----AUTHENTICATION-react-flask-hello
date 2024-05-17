@@ -4,15 +4,34 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/index.css";
 
 export const Signup = () => {
-    const { store, actions } = useContext(Context);
+    const { actions } = useContext(Context);
     const navigate = useNavigate();
-
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         email: "",
         firstName: "",
         lastName: "",
         password: ""
     });
+
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.email) {
+            errors.email = 'Email is required';
+        }
+        if (!formData.firstName) {
+            errors.firstName = 'First Name is required';
+        }
+        if (!formData.lastName) {
+            errors.lastName = 'Last Name is required';
+        }
+        if (!formData.password) {
+            errors.password = 'Password is required';
+        }
+        setErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
 
     const handleInputChange = e => {
         const { name, value } = e.target;
@@ -21,19 +40,22 @@ export const Signup = () => {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        try {
+        if (validateForm()) {
+          try {
             await actions.submitSignupForm(formData);
             setFormData({
-                email: "",
-                firstName: "",
-                lastName: "",
-                password: ""
+              email: "",
+              firstName: "",
+              lastName: "",
+              password: ""
             });
             navigate("/login");
-        } catch (error) {
+          } catch (error) {
             console.error("Error:", error);
+          }
         }
-    };
+      };
+      
 
 
     return (
@@ -46,19 +68,24 @@ export const Signup = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
-                            <input type="email" className="form-control" id="exampleInputEmail1" name="email" value={formData.email} onChange={handleInputChange} aria-describedby="emailHelp"></input>
+                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} id="exampleInputEmail1" name="email" value={formData.email} onChange={handleInputChange} aria-describedby="emailHelp"></input>
+                            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                         </div>
+
                         <div className="mb-3">
                             <label htmlFor="exampleInputFirstName" className="form-label">First Name</label>
-                            <input type="text" className="form-control" id="exampleInputFirstName" name="firstName" value={formData.firstName} onChange={handleInputChange}></input>
+                            <input type="text" className={`form-control ${errors.firstName ? 'is-invalid' : ''}`} id="exampleInputFirstName" name="firstName" value={formData.firstName} onChange={handleInputChange}></input>
+                            {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
                         </div>
                         <div className="mb-3">
                             <label htmlFor="exampleInputLastName" className="form-label">Last Name</label>
-                            <input type="text" className="form-control" id="exampleInputLastName" name="lastName" value={formData.lastName} onChange={handleInputChange}></input>
+                            <input type="text" className={`form-control ${errors.lastName ? 'is-invalid' : ''}`} id="exampleInputLastName" name="lastName" value={formData.lastName} onChange={handleInputChange}></input>
+                            {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
                         </div>
                         <div className="mb-3">
                             <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                            <input type="password" className="form-control" id="exampleInputPassword1" name="password" value={formData.password} onChange={handleInputChange}></input>
+                            <input type="password" className={`form-control ${errors.password ? 'is-invalid' : ''}`} id="exampleInputPassword1" name="password" value={formData.password} onChange={handleInputChange}></input>
+                            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                         </div>
                         <button type="submit" className="btn btn-primary">Submit</button>
                     </form>

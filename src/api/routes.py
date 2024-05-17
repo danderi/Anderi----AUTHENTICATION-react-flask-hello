@@ -93,7 +93,7 @@ def get_token():
             return jsonify({'error': 'Invalid email format.'}), 404
         
         login_user = User.query.filter_by(email=request.json['email']).one()
-
+        
         if not login_user:
             return jsonify({'error': 'email/user not found.'}), 404
 
@@ -103,18 +103,17 @@ def get_token():
 
         true_o_false = check_password_hash(hashed_password_bin, password)
         
-        # Si es verdadero generamos un token y lo devuelve en una respuesta JSON:
         if true_o_false:
-            expires = timedelta(days=1)  # pueden ser "hours", "minutes", "days","seconds"
+            expires = timedelta(minutes=5)  # pueden ser "hours", "minutes", "days","seconds"
             user_id = login_user.id
             access_token = create_access_token(identity=user_id, expires_delta=expires)
             return jsonify({ 'access_token':access_token}), 200
 
         else:
-            return {"Error":"Contraseña  incorrecta"},404
+            return {"Error":"Invalid password"},404
     
     except Exception as e:
-        return {"Error":"El email proporcionado no corresponde a ninguno registrado: " + str(e)}, 500
+        return {"Error":"The provided email does not correspond to any registered.: " + str(e)}, 500
     
 
 @api.route('/private')

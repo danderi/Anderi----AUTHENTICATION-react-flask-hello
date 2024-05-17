@@ -1,51 +1,62 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/index.css";
 
 export const Login = () => {
-    const { store, actions } = useContext(Context);
-    const [loginData, setloginData] = useState({
+    const { actions } = useContext(Context);
+    const navigate = useNavigate();
+    const [loginData, setLoginData] = useState({
         email: "",
         password: ""
     });
+    const [errors, setErrors] = useState({});
 
     const handleInputChange = e => {
         const { name, value } = e.target;
-        setloginData({ ...loginData, [name]: value });
+        setLoginData({ ...loginData, [name]: value });
     };
-    
+
     const handleSubmit = async e => {
         e.preventDefault();
         try {
-            const response = await actions.submitLoginForm(loginData); 
-            const token = response.access_token; // Acá es donde se recibe el token
-            localStorage.setItem('accessToken', token); // Guarda el token en el localStorage 
-            
-            setloginData({ email: "", password: "" });// Esto es para limpiar los datos del formulario
-           
+            const response = await actions.submitLoginForm(loginData);
+            setLoginData({ email: "", password: "" });
+            navigate("/private");
         } catch (error) {
             console.error("Error:", error);
+            // Manejo de errores y renderizado de mensajes debajo de los campos correspondientes
+            if (error.message === "Login error: email/user not found.") {
+                setErrors({ email: "User not found. Please check your email." });
+                setErrors(prevErrors => ({ ...prevErrors, password: "" })); // Limpiar mensaje de error de contraseña si existe
+            } else if (error.message === "Login error: invalid_password") {
+                setErrors({ password: "Invalid password. Please try again." });
+                setErrors(prevErrors => ({ ...prevErrors, email: "" })); // Limpiar mensaje de error de email si existe
+            } else {
+                setErrors({ common: "An error occurred. Please try again." });
+            }
         }
     };
-    
 
     return (
         <div className="container">
             <div className="row justify-content-center">
                 <div className="col-md-4">
-                <div>
-                    <h4>Ingrese su nombre de usuario y contraseña</h4>
-                </div>
+                    <div>
+                        <h4>Ingrese su nombre de usuario y contraseña</h4>
+                    </div>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
-                            <input type="email" className="form-control" id="exampleInputEmail1" name="email" value={loginData.email} onChange={handleInputChange} aria-describedby="emailHelp"></input>
+                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} id="exampleInputEmail1" name="email" value={loginData.email} onChange={handleInputChange} aria-describedby="emailHelp"></input>
+                            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                         </div>
                         <div className="mb-3">
                             <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                            <input type="password" className="form-control" id="exampleInputPassword1" name="password" value={loginData.password} onChange={handleInputChange}></input>
+                            <input type="password" className={`form-control ${errors.password || (errors.common && !loginData.password) ? 'is-invalid' : ''}`} id="exampleInputPassword1" name="password" value={loginData.password} onChange={handleInputChange}></input>
+                            {(errors.password || (errors.common && !loginData.password)) && <div className="invalid-feedback">{errors.password || "Password is required"}</div>}
                         </div>
+                        {errors.common && !errors.password && <div className="alert alert-danger">{errors.common}</div>}
                         <button type="submit" className="btn btn-primary" aria-label="Iniciar sesión">Login</button>
                         <div className="mb-3">
                             <p className="mb-0">¿No tienes una cuenta?</p>
