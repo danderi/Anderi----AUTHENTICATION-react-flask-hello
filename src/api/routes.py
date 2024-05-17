@@ -11,6 +11,8 @@ from datetime import timedelta
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 import re
+from sqlalchemy.orm.exc import NoResultFound
+
 
 api = Blueprint('api', __name__)
 
@@ -108,12 +110,14 @@ def get_token():
             user_id = login_user.id
             access_token = create_access_token(identity=user_id, expires_delta=expires)
             return jsonify({ 'access_token':access_token}), 200
-
         else:
-            return {"Error":"Invalid password"},404
-    
+            return jsonify({'error': 'Invalid password.'}), 401  # Unauthorized
+
+    except NoResultFound:
+        return jsonify({'error': 'User not found.'}), 404
     except Exception as e:
-        return {"Error":"The provided email does not correspond to any registered.: " + str(e)}, 500
+        return jsonify({'error': 'An unexpected error occurred: ' + str(e)}), 500
+
     
 
 @api.route('/private')
