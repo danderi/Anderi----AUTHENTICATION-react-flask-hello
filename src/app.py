@@ -13,6 +13,8 @@ from api.commands import setup_commands
 
 #importamos el JWTManager para poder inicializarlo con nuestra app
 from flask_jwt_extended import JWTManager
+from flask_bcrypt import Bcrypt
+
 
 # from models import Person
 

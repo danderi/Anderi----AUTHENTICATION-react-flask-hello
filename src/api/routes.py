@@ -8,17 +8,16 @@ from flask_cors import CORS
 from datetime import timedelta
 
 #importación de bcrypt diferente
-from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 import re
 from sqlalchemy.orm.exc import NoResultFound
-
+from flask_bcrypt import Bcrypt
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
-
+bcrypt = Bcrypt()
 #la inicialización de JWTManager está en la carpeta app.py despues de la declaración del servidor Flask
 # jwt = JWTManager()
 
@@ -50,9 +49,9 @@ def new_user():
         if existing_user:
             return jsonify({'error': 'Email already exists.'}), 409
 
-        # password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
         # el password hasheado de otra manera
-        hashed_password = generate_password_hash(password)
+        # hashed_password = generate_password_hash(password)
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
         new_user = User(
             email = email,
@@ -63,12 +62,6 @@ def new_user():
 
         db.session.add(new_user)
         db.session.commit()
-
-        # ok_to_share = {
-        #     "email": new_user.email,
-        #     "full_name": new_user.first_name+" "+new_user.last_name,
-        #     "id": new_user.id
-        # }
 
         return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
     
@@ -96,14 +89,15 @@ def get_token():
         
         login_user = User.query.filter_by(email=request.json['email']).one()
         
-        password_from_db = login_user.password
-        hashed_password_hex = password_from_db
-        hashed_password_bin = bytes.fromhex(hashed_password_hex[2:])
+        # password_from_db = login_user.password
+        # hashed_password_hex = password_from_db
+        # hashed_password_bin = bytes.fromhex(hashed_password_hex[2:])
 
-        true_o_false = check_password_hash(hashed_password_bin, password)
-        
+        # true_o_false = check_password_hash(hashed_password_bin, password)
+        true_o_false = bcrypt.check_password_hash(login_user.password, password)
+
         if true_o_false:
-            expires = timedelta(minutes=5)  # pueden ser "hours", "minutes", "days","seconds"
+            expires = timedelta(minutes=1)  # pueden ser "hours", "minutes", "days","seconds"
             user_id = login_user.id
             access_token = create_access_token(identity=user_id, expires_delta=expires)
             return jsonify({ 'access_token':access_token}), 200
@@ -117,19 +111,36 @@ def get_token():
 
     
 
-@api.route('/private')
-@jwt_required()  # Decorador para requerir autenticación con JWT
+@api.route('/private', methods=['GET'])
+@jwt_required()
 def show_users():
+    try:
+        current_user_id = get_jwt_identity()  # Obtiene la id del usuario del token
+        if current_user_id:
+            users = User.query.all()
+            user_list = [{'id': user.id, 'email': user.email} for user in users]
+            return jsonify(user_list), 200
+        else:
+            return jsonify({'error': 'Invalid token or token not provided'}), 401
+    except Exception as e:
+        return jsonify({'error': f'An unexpected error occurred: {str(e)}'}), 500
+    
+    
+@api.route('/user', methods=['GET'])
+@jwt_required()
+def get_user_info():
     current_user_id = get_jwt_identity()  # Obtiene la id del usuario del token
-    if current_user_id:
-        users = User.query.all()
-        user_list = []
-        for user in users:
-            user_dict = {
-                'id': user.id,
-                'email': user.email
-            }
-            user_list.append(user_dict)
-        return jsonify(user_list), 200
-    else:
-        return {"Error": "Token inválido o no proporcionado"}, 401
+    user = User.query.get(current_user_id)  # Consulta el usuario basado en la id
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    user_info = {
+        "id": user.id,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        # Añade cualquier otra información del usuario que desees retornar
+    }
+    
+    return jsonify(user_info), 200

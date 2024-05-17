@@ -1,142 +1,109 @@
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
+    return {
+        store: {
+            user: null,
+            userList: [],
+        },
+        actions: {
+            submitSignupForm: async formData => {
+                console.log("Antes de fetch: ", formData);
+                try {
+                    const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/signup", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(formData)
+                    });
 
-			submitSignupForm: async formData => {
-				console.log("Antes de fetch: ", formData)
-				try {
-					const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/signup", {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify(formData)
-					});
-		
-					if (response.ok) {
-						console.log("Form sent successfully");
-					} else {
-						console.error("Error submitting form");
-					}
-				} catch (error) {
-					console.error("Error:", error);
-				}
-			},
+                    if (response.ok) {
+                        console.log("Form sent successfully");
+                    } else {
+                        console.error("Error submitting form");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            },
 
-			submitLoginForm: async loginData => {
-				try {
-					const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/login", {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify(loginData)
-					});
-			
-					if (response.ok) {
-						const data = await response.json();
-						localStorage.setItem("jwt-token", data.access_token);
-						return { success: true, error: null };
-					} else {
-						const errorData = await response.json();
-						return { success: false, error: errorData.error };
-					}
-				} catch (error) {
-					return { success: false, error: "Request error: " + error.message };
-				}
-			},
-			
-				
-//-------------------------------------------------------------------------------------------------------------------------------------------			
-			fetchMyInfo: async () => {
-				try {
-					const response = await fetch("URL_PARA_OBTENER_LA_INFO_DE_MI_INFO", {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							// Incluir cualquier header necesario, como el token de autorización si es necesario
-						},
-					});
-					if (!response.ok) {
-						throw new Error("Failed to fetch my info");
-					}
-					const data = await response.json();
-					return data;
-				} catch (error) {
-					console.error("Error fetching my info:", error);
-					throw error;
-				}
-			},
-	
-			fetchUsers: async () => {
-				try {
-					const response = await fetch("URL_PARA_OBTENER_LA_LISTA_DE_USUARIOS", {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							// Incluir cualquier header necesario, como el token de autorización si es necesario
-						},
-					});
-					if (!response.ok) {
-						throw new Error("Failed to fetch users");
-					}
-					const data = await response.json();
-					return data;
-				} catch (error) {
-					console.error("Error fetching users:", error);
-					throw error;
-				}
-			},
-//----------------------------------------------------------------------------------------------------		
+            submitLoginForm: async loginData => {
+                try {
+                    const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(loginData)
+                    });
 
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+                    if (response.ok) {
+                        const data = await response.json();
+                        localStorage.setItem("token", data.access_token);
+                        return { success: true, error: null };
+                    } else {
+                        const errorData = await response.json();
+                        return { success: false, error: errorData.error };
+                    }
+                } catch (error) {
+                    return { success: false, error: "Request error: " + error.message };
+                }
+            },
 
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+            getUserInfo: async () => {
+                let myToken = localStorage.getItem("token");
+                try {
+                    const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/user", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${myToken}`,
+                        }
+                    });
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStore({ user: data });
+                        return data;
+                    } else {
+                        throw new Error("Error fetching user info");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    return null;
+                }
+            },
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+            getUserList: async () => {
+                let myToken = localStorage.getItem("token");
+                try {
+                    const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/private", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${myToken}`,
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStore({ userList: data });
+                        return data;
+                    } else {
+                        throw new Error("Error fetching user list");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    return [];
+                }
+            },
+
+            logout: () => {
+                localStorage.removeItem('token');
+                setStore({ user: null, userList: [] });
+            }
+        }
+    };
 };
 
 export default getState;
+

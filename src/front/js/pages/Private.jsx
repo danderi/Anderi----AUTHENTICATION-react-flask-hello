@@ -1,78 +1,76 @@
-import React, { useContext, useState, useEffect } from "react";
-import { Context } from "../store/appContext";
-import "../../styles/index.css";
-import {Navbar} from "../component/Navbar.jsx";
+import React, { useState, useEffect, useContext } from 'react';
+import { Context } from '../store/appContext';
+import { useNavigate } from 'react-router-dom';
+import { Navbar } from '../component/Navbar.jsx';
+import {Card} from 'react-bootstrap/Card';
+
 
 export const Private = () => {
-    const { actions } = useContext(Context);
-    const [section, setSection] = useState("myInfo");
+    const { actions, store } = useContext(Context);
+    const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState(null);
-    const [usersList, setUsersList] = useState([]);
-
-    const fetchMyInfo = async () => {
-        try {
-            const userInfoResponse = await actions.fetchMyInfo();
-            setUserInfo(userInfoResponse);
-        } catch (error) {
-            console.error("Error fetching my info:", error);
-        }
-    };
-
-    const fetchUsers = async () => {
-        try {
-            const usersListResponse = await actions.fetchUsers();
-            setUsersList(usersListResponse);
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        }
-    };
+    const [userList, setUserList] = useState([]);
+    const [activeSection, setActiveSection] = useState('myInfo');
 
     useEffect(() => {
-        fetchMyInfo();
-    }, []);
+        if (!localStorage.getItem('token')) {
+            navigate('/login');
+        }
+    }, [navigate]);
 
-    const handleSectionChange = newSection => {
-        setSection(newSection);
+    useEffect(() => {
+        if (activeSection === 'myInfo') {
+            fetchUserInfo();
+        } else if (activeSection === 'users') {
+            fetchUserList();
+        }
+    }, [activeSection]);
+
+    const fetchUserInfo = async () => {
+        const data = await actions.getUserInfo();
+        setUserInfo(data);
+    };
+
+    const fetchUserList = async () => {
+        const data = await actions.getUserList();
+        setUserList(data);
     };
 
     return (
-        <div className="container">
-            <Navbar
-                onSectionChange={handleSectionChange}
-                fetchMyInfo={fetchMyInfo}
-                fetchUsers={fetchUsers}
-            />
-            <div className="mt-3">
-                {section === "myInfo" && (
-                    <>
-                        <h2>My Info</h2>
-                        {userInfo ? (
-                            <div>
-                                <p>Email: {userInfo.email}</p>
-                                <p>First Name: {userInfo.firstName}</p>
-                            </div>
-                        ) : (
-                            <p>Loading...</p>
-                        )}
-                    </>
-                )}
-                {section === "users" && (
-                    <>
-                        <h2>Users</h2>
-                        {usersList.length > 0 ? (
-                            <ul>
-                                {usersList.map(user => (
-                                    <li key={user.id}>
-                                        {user.name} - {user.email}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>No users found</p>
-                        )}
-                    </>
-                )}
-            </div>
+        <div>
+            <Navbar setActiveSection={setActiveSection} />
+            {activeSection === 'myInfo' && userInfo && (
+                <div>
+                    <h2>My Info</h2>
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Email: {userInfo.email}</Card.Title>
+                            <Card.Text>
+                                Name: {userInfo.firstName} {userInfo.lastName}
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </div>
+            )}
+            {activeSection === 'users' && (
+                <div>
+                    <h2>Users</h2>
+                    {userList.map(user => (
+                        <Card key={user.id}>
+                            <Card.Body>
+                                <Card.Title>Email: {user.email}</Card.Title>
+                                <Card.Text>
+                                    Name: {user.firstName} {user.lastName}
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
+
+
+
+
