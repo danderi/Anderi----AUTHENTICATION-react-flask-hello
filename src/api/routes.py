@@ -96,9 +96,6 @@ def get_token():
         
         login_user = User.query.filter_by(email=request.json['email']).one()
         
-        if not login_user:
-            return jsonify({'error': 'email/user not found.'}), 404
-
         password_from_db = login_user.password
         hashed_password_hex = password_from_db
         hashed_password_bin = bytes.fromhex(hashed_password_hex[2:])

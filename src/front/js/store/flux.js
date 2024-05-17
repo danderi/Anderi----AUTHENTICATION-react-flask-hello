@@ -50,26 +50,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 			
 					if (response.ok) {
 						const data = await response.json();
-						localStorage.setItem("jwt-token", data.token);
+						localStorage.setItem("jwt-token", data.access_token);
 						return { success: true, error: null };
 					} else {
-						const errorMessage = await response.text();
-						// Distinguimos entre diferentes tipos de errores devueltos por la API
-						if (errorMessage === "email/user not found.") {
-							throw new Error("Login error: User not found.");
-						} else if (errorMessage === "Invalid password.") {
-							throw new Error("Login error: Invalid password.");
-						} else {
-							throw new Error("Login error: " + errorMessage);
-						}
+						const errorData = await response.json();
+						return { success: false, error: errorData.error };
 					}
 				} catch (error) {
-					throw new Error("Request error: " + error.message);
+					return { success: false, error: "Request error: " + error.message };
 				}
 			},
 			
-			
-			
+				
 //-------------------------------------------------------------------------------------------------------------------------------------------			
 			fetchMyInfo: async () => {
 				try {

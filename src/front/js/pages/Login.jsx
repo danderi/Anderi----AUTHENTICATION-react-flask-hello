@@ -21,20 +21,25 @@ export const Login = () => {
         e.preventDefault();
         try {
             const response = await actions.submitLoginForm(loginData);
-            setLoginData({ email: "", password: "" });
-            navigate("/private");
+            if (response.success) {
+                setLoginData({ email: "", password: "" });
+                navigate("/private");
+            } else {
+                if (response.error === "User not found.") {
+                    setErrors({ email: "User not found. Please check your email." });
+                    setErrors(prevErrors => ({ ...prevErrors, password: "" })); // Limpiar mensaje de error de contraseña si existe
+                } else if (response.error === "Invalid password.") {
+                    setErrors({ password: "Invalid password. Please try again." });
+                    setErrors(prevErrors => ({ ...prevErrors, email: "" })); // Limpiar mensaje de error de email si existe
+                } else if (response.error === "Email and password are required.") {
+                    setErrors({ common: response.error });
+                } else {
+                    setErrors({ common: response.error });
+                }
+            }
         } catch (error) {
             console.error("Error:", error);
-            // Manejo de errores y renderizado de mensajes debajo de los campos correspondientes
-            if (error.message === "Login error: email/user not found.") {
-                setErrors({ email: "User not found. Please check your email." });
-                setErrors(prevErrors => ({ ...prevErrors, password: "" })); // Limpiar mensaje de error de contraseña si existe
-            } else if (error.message === "Login error: invalid_password") {
-                setErrors({ password: "Invalid password. Please try again." });
-                setErrors(prevErrors => ({ ...prevErrors, email: "" })); // Limpiar mensaje de error de email si existe
-            } else {
-                setErrors({ common: "An error occurred. Please try again." });
-            }
+            setErrors({ common: "An error occurred. Please try again." });
         }
     };
 
