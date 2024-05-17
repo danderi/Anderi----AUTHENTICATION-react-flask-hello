@@ -11,3 +11,25 @@
     margin-bottom: 50px; /* Espacio en la parte inferior */
   }
   
+  .private-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 10px;
+    background-color: #f9f9f9;
+}
+
+.card h2 {
+    margin-bottom: 10px;
+}
+
+.card p {
+    margin-bottom: 5px;
+}

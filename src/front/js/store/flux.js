@@ -50,53 +50,52 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 
             getUserInfo: async () => {
-                let myToken = localStorage.getItem("token");
-                try {
-                    const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/user", {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${myToken}`,
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        setStore({ user: data });
-                        return data;
-                    } else {
-                        throw new Error("Error fetching user info");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    return null;
-                }
-            },
-
-            getUserList: async () => {
-                let myToken = localStorage.getItem("token");
-                try {
-                    const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/private", {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${myToken}`,
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        setStore({ userList: data });
-                        return data;
-                    } else {
-                        throw new Error("Error fetching user list");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    return [];
-                }
-            },
-
+				let myToken = localStorage.getItem("token");
+				try {
+					const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/user", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": `Bearer ${myToken}`,
+						}
+					});
+			
+					if (response.ok) {
+						const data = await response.json();
+						console.log(data)
+						return data; // Solo retornar los datos obtenidos
+					} else {
+						throw new Error("Error fetching user info");
+					}
+				} catch (error) {
+					console.error("Error:", error);
+					return null;
+				}
+			},
+			
+			getUserList: async () => {
+				let myToken = localStorage.getItem("token");
+				try {
+					const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/private", {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Authorization": `Bearer ${myToken}`,
+						}
+					});
+			
+					if (response.ok) {
+						const data = await response.json();
+						return data; // Solo retornar los datos obtenidos
+					} else {
+						throw new Error("Error fetching user list");
+					}
+				} catch (error) {
+					console.error("Error:", error);
+					return [];
+				}
+			},
+			
             logout: () => {
                 localStorage.removeItem('token');
                 setStore({ user: null, userList: [] });

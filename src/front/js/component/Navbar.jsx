@@ -5,7 +5,7 @@ export const Navbar = ({ setActiveSection }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem('jwt-token');
+        localStorage.removeItem('token');
         navigate('/login');
     };
 

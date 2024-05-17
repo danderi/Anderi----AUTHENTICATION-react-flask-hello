@@ -97,7 +97,7 @@ def get_token():
         true_o_false = bcrypt.check_password_hash(login_user.password, password)
 
         if true_o_false:
-            expires = timedelta(minutes=1)  # pueden ser "hours", "minutes", "days","seconds"
+            expires = timedelta(minutes=10)  # pueden ser "hours", "minutes", "days","seconds"
             user_id = login_user.id
             access_token = create_access_token(identity=user_id, expires_delta=expires)
             return jsonify({ 'access_token':access_token}), 200
@@ -118,7 +118,7 @@ def show_users():
         current_user_id = get_jwt_identity()  # Obtiene la id del usuario del token
         if current_user_id:
             users = User.query.all()
-            user_list = [{'id': user.id, 'email': user.email} for user in users]
+            user_list = [{'id': user.id, 'email': user.email, 'first_name': user.first_name, 'last_name': user.last_name} for user in users]
             return jsonify(user_list), 200
         else:
             return jsonify({'error': 'Invalid token or token not provided'}), 401

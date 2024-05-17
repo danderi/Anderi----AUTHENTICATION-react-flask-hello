@@ -2,8 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../component/Navbar.jsx';
-import {Card} from 'react-bootstrap/Card';
-
 
 export const Private = () => {
     const { actions, store } = useContext(Context);
@@ -15,6 +13,9 @@ export const Private = () => {
     useEffect(() => {
         if (!localStorage.getItem('token')) {
             navigate('/login');
+        } else {
+            // Si hay token, se carga la información del usuario
+            fetchUserInfo();
         }
     }, [navigate]);
 
@@ -39,37 +40,34 @@ export const Private = () => {
     return (
         <div>
             <Navbar setActiveSection={setActiveSection} />
-            {activeSection === 'myInfo' && userInfo && (
-                <div>
-                    <h2>My Info</h2>
-                    <Card>
-                        <Card.Body>
-                            <Card.Title>Email: {userInfo.email}</Card.Title>
-                            <Card.Text>
-                                Name: {userInfo.firstName} {userInfo.lastName}
-                            </Card.Text>
-                        </Card.Body>
-                    </Card>
-                </div>
-            )}
-            {activeSection === 'users' && (
-                <div>
-                    <h2>Users</h2>
-                    {userList.map(user => (
-                        <Card key={user.id}>
-                            <Card.Body>
-                                <Card.Title>Email: {user.email}</Card.Title>
-                                <Card.Text>
-                                    Name: {user.firstName} {user.lastName}
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    ))}
-                </div>
-            )}
+            <div className="private-container">
+                {activeSection === 'myInfo' && userInfo && (
+                    <div className="card">
+                        <h2>My Info</h2>
+                        <p>Email: {userInfo.email}</p>
+                        <p>Name: {userInfo.first_name}</p>
+                        <p>Last Name: {userInfo.last_name}</p>
+                    </div>
+                )}
+                {activeSection === 'users' && (
+                    <div className="card">
+                        <h2>Users</h2>
+                        <ul>
+                            {userList.map(user => (
+                                <li key={user.id}>
+                                    <p>Email: {user.email}</p>
+                                    <p>Name: {user.first_name}</p>
+                                    <p>Last Name: {user.last_name}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
+
 
 
 
