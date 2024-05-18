@@ -1,0 +1,34 @@
+body {
+    background-color: #343a40; /* Fondo oscuro */
+    color: #f8f9fa; /* Texto claro */
+}
+
+.private-container {
+    background-color: #495057; /* Fondo más oscuro para el contenedor */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    background-color: #6c757d; /* Fondo más oscuro para las tarjetas */
+    color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    color: #f8f9fa; /* Texto claro para los títulos */
+}
+
+.table th {
+    background-color: #343a40; /* Fondo oscuro para la cabecera de la tabla */
+    color: #f8f9fa; /* Texto claro */
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #495057; /* Fondo más oscuro para las filas pares */
+}
+

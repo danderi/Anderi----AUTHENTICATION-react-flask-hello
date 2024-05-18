@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../component/Navbar.jsx';
+import '../../styles/private.css';
 
 export const Private = () => {
     const { actions, store } = useContext(Context);
@@ -14,7 +15,6 @@ export const Private = () => {
         if (!localStorage.getItem('token')) {
             navigate('/login');
         } else {
-            // Si hay token, se carga la información del usuario
             fetchUserInfo();
         }
     }, [navigate]);
@@ -44,29 +44,45 @@ export const Private = () => {
                 {activeSection === 'myInfo' && userInfo && (
                     <div className="card">
                         <h2>My Info</h2>
-                        <p>Email: {userInfo.email}</p>
-                        <p>Name: {userInfo.first_name}</p>
-                        <p>Last Name: {userInfo.last_name}</p>
+                        <div className="info-item">
+                            <strong>Email:</strong> {userInfo.email}
+                        </div>
+                        <div className="info-item">
+                            <strong>Name:</strong> {userInfo.first_name}
+                        </div>
+                        <div className="info-item">
+                            <strong>Last Name:</strong> {userInfo.last_name}
+                        </div>
                     </div>
                 )}
                 {activeSection === 'users' && (
                     <div className="card">
                         <h2>Users</h2>
-                        <ul>
-                            {userList.map(user => (
-                                <li key={user.id}>
-                                    <p>Email: {user.email}</p>
-                                    <p>Name: {user.first_name}</p>
-                                    <p>Last Name: {user.last_name}</p>
-                                </li>
-                            ))}
-                        </ul>
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Name</th>
+                                    <th>Last Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userList.map(user => (
+                                    <tr key={user.id}>
+                                        <td>{user.email}</td>
+                                        <td>{user.first_name}</td>
+                                        <td>{user.last_name}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>
         </div>
     );
 };
+
 
 
 

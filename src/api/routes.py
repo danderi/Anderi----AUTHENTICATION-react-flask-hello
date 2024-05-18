@@ -49,8 +49,6 @@ def new_user():
         if existing_user:
             return jsonify({'error': 'Email already exists.'}), 409
 
-        # el password hasheado de otra manera
-        # hashed_password = generate_password_hash(password)
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
         new_user = User(
@@ -64,6 +62,9 @@ def new_user():
         db.session.commit()
 
         return jsonify({"message": "User created successfully", "user": new_user.serialize()}), 201
+    
+    except NoResultFound:
+        return jsonify({'error': 'User already exist.'}), 404
     
     except Exception as e:
         print(str(e))
@@ -89,11 +90,6 @@ def get_token():
         
         login_user = User.query.filter_by(email=request.json['email']).one()
         
-        # password_from_db = login_user.password
-        # hashed_password_hex = password_from_db
-        # hashed_password_bin = bytes.fromhex(hashed_password_hex[2:])
-
-        # true_o_false = check_password_hash(hashed_password_bin, password)
         true_o_false = bcrypt.check_password_hash(login_user.password, password)
 
         if true_o_false:

@@ -15,17 +15,27 @@ const getState = ({ getStore, getActions, setStore }) => {
                         },
                         body: JSON.stringify(formData)
                     });
-
+            
+                    const data = await response.json();
+            
                     if (response.ok) {
                         console.log("Form sent successfully");
+                        return { success: true };
                     } else {
-                        console.error("Error submitting form");
+                        if (data.error === 'Email already exists.') {
+                            console.error("Email already exists.");
+                            return { success: false, error: 'Email already exists.' };
+                        } else {
+                            console.error("Error submitting form:", data.error || data.message);
+                            return { success: false, error: data.error || data.message };
+                        }
                     }
                 } catch (error) {
                     console.error("Error:", error);
+                    return { success: false, error: "An error occurred. Please try again." };
                 }
             },
-
+            
             submitLoginForm: async loginData => {
                 try {
                     const response = await fetch("https://crispy-spoon-q56xvgvrg4rf5wq-3001.app.github.dev/api/login", {

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
+import '../../styles/navbar.css';
 
 export const Navbar = ({ setActiveSection }) => {
     const navigate = useNavigate();
@@ -10,16 +11,16 @@ export const Navbar = ({ setActiveSection }) => {
     };
 
     return (
-        <nav className="navbar navbar-light bg-light">
+        <nav className="navbar">
             <div className="container">
-                <button className="btn btn-link navbar-brand mb-0 h1" onClick={() => setActiveSection('myInfo')}>
+                <button className="btn navbar-btn" onClick={() => setActiveSection('myInfo')}>
                     My Info
                 </button>
-                <button className="btn btn-link navbar-brand mb-0 h1" onClick={() => setActiveSection('users')}>
+                <button className="btn navbar-btn" onClick={() => setActiveSection('users')}>
                     Users
                 </button>
                 <div className="ml-auto">
-                    <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
+                    <button className="btn navbar-btn" onClick={handleLogout}>Logout</button>
                 </div>
             </div>
         </nav>
