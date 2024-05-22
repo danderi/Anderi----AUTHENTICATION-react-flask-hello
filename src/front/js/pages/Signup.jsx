@@ -13,7 +13,7 @@ export const Signup = () => {
         lastName: "",
         password: ""
     });
-    const [creatingUser, setCreatingUser] = useState(false); // Estado para el mensaje "creating user"
+    const [creatingUser, setCreatingUser] = useState(false); 
 
     const validateForm = () => {
         const errors = {};
@@ -126,7 +126,11 @@ export const Signup = () => {
                         {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </div>
                     <button type="submit" className="btn btn-primary w-100 mt-3">Submit</button>
-                    {creatingUser && <p className="text-center mt-3">Creating user<span className="dot-flashing">...</span></p>}
+                    {creatingUser && <p className="text-center mt-3">
+                        <span className="dot-flashing-container">
+                            <span className="dot-flashing"></span>
+                        </span>
+                    </p>}
                 </form>
                 <div className="auth-footer">
                     <p className="mb-0">Already have an account? <Link to="/login" className="btn btn-link">Log In</Link></p>
