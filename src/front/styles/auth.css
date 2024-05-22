@@ -110,13 +110,13 @@ body {
 .dot-flashing::before {
     left: -20px;
     animation: dot-flashing 1s infinite linear alternate;
-    animation-delay: 0s;
+    animation-delay: -.33s;
 }
 
 .dot-flashing::after {
     left: 20px;
     animation: dot-flashing 1s infinite linear alternate;
-    animation-delay: 0.5s;
+    animation-delay: 0.33s;
 }
 
 @keyframes dot-flashing {
@@ -127,6 +127,37 @@ body {
     100% {
         background-color: #f8f9fa;
     }
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #bdbfc1;
+}
+
+.password-strength {
+    height: 5px;
+    background-color: #ddd;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-recommendations {
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
 

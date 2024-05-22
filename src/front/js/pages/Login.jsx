@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/auth.css";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa"; // Importación de los iconos
 
 export const Login = () => {
     const { actions } = useContext(Context);
@@ -12,6 +13,7 @@ export const Login = () => {
     });
     const [errors, setErrors] = useState({});
     const [loggingIn, setLoggingIn] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleInputChange = e => {
         const { name, value } = e.target;
@@ -68,16 +70,21 @@ export const Login = () => {
                         />
                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                     </div>
-                    <div className="mb-3">
+                    <div className="mb-3 password-container">
                         <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                        <input
-                            type="password"
-                            className={`form-control ${errors.password || (errors.common && !loginData.password) ? 'is-invalid' : ''}`}
-                            id="exampleInputPassword1"
-                            name="password"
-                            value={loginData.password}
-                            onChange={handleInputChange}
-                        />
+                        <div className="password-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className={`form-control ${errors.password || (errors.common && !loginData.password) ? 'is-invalid' : ''}`}
+                                id="exampleInputPassword1"
+                                name="password"
+                                value={loginData.password}
+                                onChange={handleInputChange}
+                            />
+                            <span className="password-toggle-icon" onClick={() => setShowPassword(!showPassword)}>
+                                {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                            </span>
+                        </div>
                         {(errors.password || (errors.common && !loginData.password)) && <div className="invalid-feedback">{errors.password || "Password is required"}</div>}
                     </div>
                     {errors.common && !errors.password && <div className="alert alert-danger">{errors.common}</div>}
@@ -96,4 +103,3 @@ export const Login = () => {
         </div>
     );
 };
-

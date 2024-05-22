@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link, useNavigate } from "react-router-dom";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa"; // Importación de los iconos
 import "../../styles/auth.css";
 
 export const Signup = () => {
@@ -14,6 +15,8 @@ export const Signup = () => {
         password: ""
     });
     const [creatingUser, setCreatingUser] = useState(false); 
+    const [passwordStrength, setPasswordStrength] = useState(0);
+    const [showPassword, setShowPassword] = useState(false); // Estado para mostrar/ocultar la contraseña
 
     const validateForm = () => {
         const errors = {};
@@ -37,6 +40,21 @@ export const Signup = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         setErrors({ ...errors, [name]: '' }); // Clear error message when user starts typing
+
+        if (name === 'password') {
+            evaluatePasswordStrength(value);
+        }
+    };
+
+    const evaluatePasswordStrength = (password) => {
+        let strength = 0;
+        if (password.length >= 8) strength += 1;
+        if (/[A-Z]/.test(password)) strength += 1;
+        if (/[a-z]/.test(password)) strength += 1;
+        if (/[0-9]/.test(password)) strength += 1;
+        if (/[\W_]/.test(password)) strength += 1;
+
+        setPasswordStrength(strength);
     };
 
     const handleSubmit = async e => {
@@ -54,20 +72,36 @@ export const Signup = () => {
                     });
                     setCreatingUser(false); // Ocultar el mensaje "creating user"
                     navigate("/login");
-            } else {
-                if (response.error === 'Email already exists.') {
-                    setErrors({ email: "User already exists. Please use a different email." });
                 } else {
-                    setErrors({ common: response.error });
+                    if (response.error === 'Email already exists.') {
+                        setErrors({ email: "User already exists. Please use a different email." });
+                    } else {
+                        setErrors({ common: response.error });
+                    }
+                    setCreatingUser(false);
                 }
-                setCreatingUser(false);
-            }
-            
-         } catch (error) {
+            } catch (error) {
                 console.error("Error:", error);
                 setErrors({ common: "An error occurred. Please try again." });
                 setCreatingUser(false); // Ocultar el mensaje "creating user"
             }
+        }
+    };
+
+    const getPasswordStrengthColor = (strength) => {
+        switch (strength) {
+            case 1:
+                return "red";
+            case 2:
+                return "orange";
+            case 3:
+                return "yellow";
+            case 4:
+                return "lightgreen";
+            case 5:
+                return "green";
+            default:
+                return "red";
         }
     };
 
@@ -115,15 +149,32 @@ export const Signup = () => {
                     </div>
                     <div className="mb-3">
                         <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
-                        <input
-                            type="password"
-                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                            id="exampleInputPassword1"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                        />
+                        <div className="password-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                id="exampleInputPassword1"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                            />
+                            <span className="password-toggle-icon" onClick={() => setShowPassword(!showPassword)}>
+                                {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                            </span>
+                        </div>
                         {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                        <div className="password-strength">
+                            <div 
+                                className="password-strength-bar" 
+                                style={{ 
+                                    width: `${(passwordStrength / 5) * 100}%`, 
+                                    backgroundColor: getPasswordStrengthColor(passwordStrength) 
+                                }}
+                            />
+                        </div>
+                        <p className="password-recommendations">
+                            Password should be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and symbols.
+                        </p>
                     </div>
                     <button type="submit" className="btn btn-primary w-100 mt-3">Submit</button>
                     {creatingUser && <p className="text-center mt-3">
@@ -139,6 +190,3 @@ export const Signup = () => {
         </div>
     );
 };
-
-
-
